@@ -52,6 +52,17 @@ test("keeps Grok photo generation opt-in and server-side", async ({ page }) => {
   await expect(page.locator("#grokStatus")).toContainText(/XAI_API_KEY|Grok photo|Canvas preview/);
 });
 
+test("handles unavailable Grok endpoints without surfacing raw status codes", async ({ page }) => {
+  await page.route("**/api/grok-image", (route) => route.fulfill({ status: 405, body: "" }));
+  await page.route("**/.netlify/functions/grok-image", (route) => route.fulfill({ status: 405, body: "" }));
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Grok photo" }).click();
+
+  await expect(page.locator("#grokStatus")).toContainText("No Grok endpoint is available from this page.");
+  await expect(page.locator("#grokStatus")).not.toContainText("405");
+});
+
 test("keeps primary controls visible on mobile", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");

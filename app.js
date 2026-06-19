@@ -1041,7 +1041,7 @@ async function postGrokImage(endpoint, body) {
     body: JSON.stringify(body),
   });
 
-  if (response.status === 404) {
+  if ([404, 405].includes(response.status)) {
     return { unavailable: true };
   }
 
@@ -1110,7 +1110,7 @@ async function generateGrokPhoto() {
       }
     }
 
-    throw lastError || new Error("No Grok endpoint is available.");
+    throw lastError || new Error("No Grok endpoint is available from this page.");
   } catch (error) {
     setGrokStatus(`${error.message} Canvas preview remains available.`);
     showToast("Grok photo unavailable");
