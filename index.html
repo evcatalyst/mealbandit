@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MealBandit - Recipe Blueprint</title>
+    <meta
+      name="description"
+      content="Turn a meal idea into a visual recipe plan, prep flow, and ingredient bill of materials."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" aria-label="MealBandit">
+        <a class="brand" href="#builder" aria-label="MealBandit home">
+          <span class="brand-mark" aria-hidden="true">MB</span>
+          <span>MealBandit</span>
+        </a>
+        <nav class="topnav" aria-label="Views">
+          <a href="#builder">Builder</a>
+          <a href="#materials">Materials</a>
+          <a href="#prep">Prep</a>
+        </nav>
+      </header>
+
+      <main>
+        <section id="builder" class="workbench" aria-label="Recipe blueprint builder">
+          <div class="intake-panel tool-panel">
+            <div class="panel-heading">
+              <p class="eyebrow">Idea</p>
+              <h1>Recipe blueprint</h1>
+            </div>
+
+            <label class="idea-field">
+              <span>Meal idea</span>
+              <textarea
+                id="ideaInput"
+                rows="5"
+                spellcheck="true"
+              >I want a fast, high-protein dinner with bright vegetables and a sauce I can make from pantry staples.</textarea>
+            </label>
+
+            <div class="profile-grid" aria-label="Preference profile">
+              <label class="profile-field">
+                <span>Likes</span>
+                <input id="likesInput" type="text" placeholder="crispy tofu, lemon, herbs">
+              </label>
+              <label class="profile-field">
+                <span>Not like</span>
+                <input id="dislikesInput" type="text" placeholder="mushrooms, sweet sauces">
+              </label>
+              <label class="profile-field">
+                <span>Allergic to</span>
+                <input id="allergyInput" type="text" placeholder="shellfish, dairy, sesame">
+              </label>
+              <label class="profile-field profile-field-wide">
+                <span>Absolutely hate and why</span>
+                <textarea
+                  id="hateInput"
+                  rows="3"
+                  spellcheck="true"
+                  placeholder="cilantro: tastes soapy; shrimp: texture"
+                ></textarea>
+              </label>
+            </div>
+
+            <div class="macro-targets" aria-label="Macro targets">
+              <div class="control-label">Macro targets per person</div>
+              <div class="macro-target-grid">
+                <label class="profile-field">
+                  <span>Max carbs</span>
+                  <input id="carbLimitInput" type="number" min="0" step="1" inputmode="decimal" placeholder="21">
+                </label>
+                <label class="profile-field">
+                  <span>Min protein</span>
+                  <input id="proteinMinInput" type="number" min="0" step="1" inputmode="decimal" placeholder="30">
+                </label>
+                <label class="profile-field">
+                  <span>Max calories</span>
+                  <input id="calorieLimitInput" type="number" min="0" step="25" inputmode="decimal" placeholder="650">
+                </label>
+                <label class="profile-field">
+                  <span>Max fat</span>
+                  <input id="fatLimitInput" type="number" min="0" step="1" inputmode="decimal" placeholder="30">
+                </label>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">Servings</div>
+              <div class="segmented" role="radiogroup" aria-label="Servings">
+                <button class="segment is-active" type="button" data-servings="2" aria-pressed="true">2</button>
+                <button class="segment" type="button" data-servings="4" aria-pressed="false">4</button>
+                <button class="segment" type="button" data-servings="6" aria-pressed="false">6</button>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label class="range-row" for="timeRange">
+                <span>Max time</span>
+                <output id="timeOutput" for="timeRange">30 min</output>
+              </label>
+              <input id="timeRange" type="range" min="15" max="60" step="5" value="30">
+            </div>
+
+            <div class="control-group">
+              <div class="control-label">Mode</div>
+              <div class="mode-grid" role="radiogroup" aria-label="Meal mode">
+                <button class="mode-chip is-active" type="button" data-mode="omnivore" aria-pressed="true">
+                  Omnivore
+                </button>
+                <button class="mode-chip" type="button" data-mode="vegetarian" aria-pressed="false">
+                  Vegetarian
+                </button>
+                <button class="mode-chip" type="button" data-mode="pescatarian" aria-pressed="false">
+                  Pescatarian
+                </button>
+              </div>
+            </div>
+
+            <div class="toggle-row">
+              <label class="switch">
+                <input id="pantryToggle" type="checkbox" checked>
+                <span aria-hidden="true"></span>
+                <strong>Pantry-first</strong>
+              </label>
+              <label class="switch">
+                <input id="batchToggle" type="checkbox">
+                <span aria-hidden="true"></span>
+                <strong>Leftovers</strong>
+              </label>
+            </div>
+
+            <div class="actions">
+              <button id="buildBtn" class="primary-action" type="button">
+                <span aria-hidden="true">+</span>
+                Build meal
+              </button>
+              <button id="randomBtn" class="ghost-action" type="button">
+                Shuffle
+              </button>
+            </div>
+          </div>
+
+          <div class="visual-stage" aria-live="polite">
+            <div class="stage-media">
+              <canvas
+                id="mealPhoto"
+                class="meal-photo"
+                width="1200"
+                height="780"
+                role="img"
+                aria-label="Dynamically generated meal photo"
+              ></canvas>
+              <img id="grokPhoto" class="grok-photo" alt="" hidden>
+              <div class="media-scrim" aria-hidden="true"></div>
+              <div class="photo-toolbar">
+                <span id="photoModeLabel">Canvas preview</span>
+                <button id="grokGenerateBtn" class="grok-action" type="button">
+                  Grok photo
+                </button>
+                <button id="photoDownloadBtn" class="icon-action photo-action" type="button" aria-label="Download generated photo" title="Download generated photo">
+                  <svg aria-hidden="true" viewBox="0 0 24 24">
+                    <path d="M12 4v11"></path>
+                    <path d="m8 11 4 4 4-4"></path>
+                    <path d="M5 20h14"></path>
+                  </svg>
+                </button>
+              </div>
+              <div id="grokStatus" class="grok-status" aria-live="polite">
+                Grok is opt-in for the current recipe.
+              </div>
+              <div class="blueprint-label label-base" data-zone="Base">
+                <span>Base</span>
+                <strong id="baseLabel">farro</strong>
+              </div>
+              <div class="blueprint-label label-protein" data-zone="Protein">
+                <span>Protein</span>
+                <strong id="proteinLabel">seared chicken</strong>
+              </div>
+              <div class="blueprint-label label-produce" data-zone="Produce">
+                <span>Produce</span>
+                <strong id="produceLabel">broccoli + peppers</strong>
+              </div>
+              <div class="blueprint-label label-sauce" data-zone="Sauce">
+                <span>Sauce</span>
+                <strong id="sauceLabel">lemon tahini</strong>
+              </div>
+            </div>
+
+            <div class="recipe-summary">
+              <div>
+                <p class="eyebrow">Visual meal</p>
+                <h2 id="recipeTitle">Lemon-Tahini Chicken Farro Bowls</h2>
+              </div>
+              <div class="recipe-metrics" aria-label="Recipe metrics">
+                <span id="metricTime">30 min</span>
+                <span id="metricServings">2 servings</span>
+                <span id="metricCost">$</span>
+              </div>
+            </div>
+
+            <div class="output-grid">
+              <article class="output-panel">
+                <h3>Flavor system</h3>
+                <p id="flavorText">
+                  Nutty grains, charred vegetables, crisp herbs, and a lemon-tahini finish.
+                </p>
+              </article>
+              <article class="output-panel">
+                <h3>Risk flags</h3>
+                <ul id="riskList" class="plain-list"></ul>
+              </article>
+              <article class="output-panel macro-output">
+                <h3>Macronutrient assessment</h3>
+                <div class="macro-grid" aria-label="Estimated macros per serving">
+                  <div>
+                    <span>Calories</span>
+                    <strong id="macroCalories">--</strong>
+                  </div>
+                  <div>
+                    <span>Protein</span>
+                    <strong id="macroProtein">--</strong>
+                  </div>
+                  <div>
+                    <span>Carbs</span>
+                    <strong id="macroCarbs">--</strong>
+                  </div>
+                  <div>
+                    <span>Fat</span>
+                    <strong id="macroFat">--</strong>
+                  </div>
+                </div>
+                <p id="macroStatus" class="macro-status">Estimated per person from the bill of materials.</p>
+                <ul id="macroTweakList" class="plain-list macro-tweaks"></ul>
+              </article>
+              <article class="output-panel preference-output">
+                <h3>Preference signal</h3>
+                <ul id="preferenceList" class="plain-list"></ul>
+              </article>
+            </div>
+          </div>
+
+          <aside id="materials" class="materials-panel tool-panel" aria-label="Recipe bill of materials">
+            <div class="panel-heading compact">
+              <p class="eyebrow">BOM</p>
+              <h2>Bill of materials</h2>
+            </div>
+
+            <div class="materials-toolbar">
+              <button id="copyBtn" class="icon-action" type="button" aria-label="Copy ingredients" title="Copy ingredients">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M9 9h10v10H9z"></path>
+                  <path d="M5 5h10v10"></path>
+                </svg>
+              </button>
+              <button id="downloadBtn" class="icon-action" type="button" aria-label="Download list" title="Download list">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M12 4v11"></path>
+                  <path d="m8 11 4 4 4-4"></path>
+                  <path d="M5 20h14"></path>
+                </svg>
+              </button>
+            </div>
+
+            <div class="materials-section">
+              <h3>Ingredients</h3>
+              <ul id="ingredientList" class="ingredient-list"></ul>
+            </div>
+
+            <div class="materials-section">
+              <h3>Equipment</h3>
+              <ul id="gearList" class="plain-list"></ul>
+            </div>
+
+            <div class="materials-section totals">
+              <div>
+                <span>Estimated spend</span>
+                <strong id="spendEstimate">$18-24</strong>
+              </div>
+              <div>
+                <span>Prep load</span>
+                <strong id="prepLoad">Light</strong>
+              </div>
+            </div>
+          </aside>
+        </section>
+
+        <section id="prep" class="prep-band" aria-label="Recipe prep plan">
+          <div class="prep-header">
+            <p class="eyebrow">Assembly</p>
+            <h2>Prep sequence</h2>
+          </div>
+          <ol id="prepSteps" class="timeline"></ol>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
