@@ -42,6 +42,14 @@ npm run test:smoke
 
 The Playwright smoke suite verifies recipe rendering, preference and macro behavior, the nonblank canvas preview, the Grok fallback path, and mobile visibility.
 
+Run the production browser checks against Netlify with:
+
+```sh
+npm run test:live
+```
+
+Set `LIVE_BASE_URL` to check another deployed URL, for example `LIVE_BASE_URL=https://evcatalyst.github.io/mealbandit npm run test:live`.
+
 ## Deployment
 
 The static site builds into `dist/`.
