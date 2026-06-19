@@ -51,6 +51,7 @@ jobs:
           path: dist
 
   deploy:
+    if: ${{ github.ref == 'refs/heads/main' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,3 +61,11 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  explain-skipped-deploy:
+    if: ${{ github.ref != 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Explain skipped GitHub Pages deploy
+        run: echo "GitHub Pages deploy is restricted to main by environment protection rules. This run only built and tested the branch."
