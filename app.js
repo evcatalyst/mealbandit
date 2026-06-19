@@ -976,6 +976,38 @@ function showGrokPhoto(src, message) {
   setGrokStatus(message);
 }
 
+function grokRuntime() {
+  const hostname = window.location.hostname;
+
+  if (window.location.protocol === "file:") {
+    return "file";
+  }
+
+  if (["localhost", "127.0.0.1", "::1"].includes(hostname)) {
+    return "local";
+  }
+
+  if (hostname === "mealbandit.netlify.app" || hostname.endsWith(".netlify.app") || hostname.endsWith(".netlify.live")) {
+    return "netlify";
+  }
+
+  return "static";
+}
+
+function grokIdleMessage() {
+  const runtime = grokRuntime();
+
+  if (runtime === "file") {
+    return "Grok photos need the live Netlify site because the xAI key stays server-side.";
+  }
+
+  if (runtime === "static") {
+    return "Grok photos are available from the Netlify deployment.";
+  }
+
+  return "Grok is opt-in for the current recipe.";
+}
+
 function restoreCachedGrokPhoto(blueprint) {
   const { cacheKey } = grokPhotoRequest(blueprint);
   const cached = safeStorageGet(grokStorageKey(cacheKey));
@@ -985,15 +1017,21 @@ function restoreCachedGrokPhoto(blueprint) {
     return;
   }
 
-  showCanvasPhoto("Grok is opt-in for the current recipe.");
+  showCanvasPhoto(grokIdleMessage());
 }
 
 function grokApiEndpoints() {
-  if (window.location.protocol === "file:") {
-    return [];
+  const runtime = grokRuntime();
+
+  if (runtime === "netlify") {
+    return ["/.netlify/functions/grok-image"];
   }
 
-  return ["/.netlify/functions/grok-image", "/api/grok-image"];
+  if (runtime === "local") {
+    return ["/api/grok-image", "/.netlify/functions/grok-image"];
+  }
+
+  return [];
 }
 
 async function postGrokImage(endpoint, body) {
@@ -1003,7 +1041,7 @@ async function postGrokImage(endpoint, body) {
     body: JSON.stringify(body),
   });
 
-  if (response.status === 404) {
+  if ([404, 405].includes(response.status)) {
     return { unavailable: true };
   }
 
@@ -1033,8 +1071,8 @@ async function generateGrokPhoto() {
   const endpoints = grokApiEndpoints();
 
   if (!endpoints.length) {
-    setGrokStatus("Open via Netlify or local server to generate a Grok photo.");
-    showToast("Grok needs a server-side API key");
+    setGrokStatus(grokIdleMessage());
+    showToast("Grok needs the Netlify site");
     return;
   }
 
@@ -1072,7 +1110,7 @@ async function generateGrokPhoto() {
       }
     }
 
-    throw lastError || new Error("No Grok endpoint is available.");
+    throw lastError || new Error("No Grok endpoint is available from this page.");
   } catch (error) {
     setGrokStatus(`${error.message} Canvas preview remains available.`);
     showToast("Grok photo unavailable");
