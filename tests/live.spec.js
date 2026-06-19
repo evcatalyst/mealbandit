@@ -79,3 +79,24 @@ test("live Netlify Grok button sends the server-side image request", async ({ pa
   expect(failures.pageErrors).toEqual([]);
   expect(failures.failedRequests).toEqual([]);
 });
+
+test("live static hosts do not call Netlify-only Grok endpoints", async ({ page }) => {
+  test.skip(isNetlifyLive, "Netlify should call the deployed serverless function.");
+
+  const failures = collectBrowserFailures(page);
+  const grokRequests = [];
+
+  page.on("request", (request) => {
+    if (/grok-image|api\/grok/.test(request.url())) {
+      grokRequests.push(`${request.method()} ${request.url()}`);
+    }
+  });
+
+  await page.goto(liveUrl(), { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Grok photo" }).click();
+
+  await expect(page.locator("#grokStatus")).toContainText("Grok photos are available from the Netlify deployment.");
+  expect(grokRequests).toEqual([]);
+  expect(failures.pageErrors).toEqual([]);
+  expect(failures.failedRequests).toEqual([]);
+});
