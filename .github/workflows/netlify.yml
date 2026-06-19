@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      NETLIFY_SITE_ID: 3cbc9c2b-7cf3-412e-a9ef-e61b1cf647d2
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -29,9 +29,9 @@ jobs:
         run: npm run build
 
       - name: Deploy to Netlify
-        if: ${{ env.NETLIFY_AUTH_TOKEN != '' && env.NETLIFY_SITE_ID != '' }}
+        if: ${{ env.NETLIFY_AUTH_TOKEN != '' }}
         run: npx netlify-cli deploy --prod --dir=dist --functions=netlify/functions --site="$NETLIFY_SITE_ID" --message="Deploy ${GITHUB_SHA}"
 
       - name: Explain skipped deploy
-        if: ${{ env.NETLIFY_AUTH_TOKEN == '' || env.NETLIFY_SITE_ID == '' }}
-        run: echo "Set NETLIFY_AUTH_TOKEN and NETLIFY_SITE_ID repository secrets to enable Netlify deployment."
+        if: ${{ env.NETLIFY_AUTH_TOKEN == '' }}
+        run: echo "Set the NETLIFY_AUTH_TOKEN repository secret to enable Netlify deployment."

@@ -54,5 +54,8 @@ GitHub Pages:
 Netlify:
 
 - `netlify.toml` publishes `dist/` and deploys functions from `netlify/functions`.
-- Connect the repository in Netlify, or set repository secrets `NETLIFY_AUTH_TOKEN` and `NETLIFY_SITE_ID` to enable `.github/workflows/netlify.yml`.
+- The production Netlify site is <https://mealbandit.netlify.app> (`3cbc9c2b-7cf3-412e-a9ef-e61b1cf647d2`).
+- Set the GitHub repository secret `NETLIFY_AUTH_TOKEN` to enable `.github/workflows/netlify.yml` to deploy future pushes automatically.
 - Set `XAI_API_KEY` in Netlify environment variables to enable Grok image generation.
+
+Main branch protection requires pull requests, one approving review, resolved conversations, and the `smoke` CI check before merge.
