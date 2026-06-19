@@ -19,6 +19,10 @@ Preference fields support likes, not-likes, allergies, and hard hates with reaso
 
 Macro target fields support per-person carb ceilings, protein floors, calorie caps, and fat caps. The app estimates calories, protein, carbs, and fat from a local ingredient table, then suggests concrete tweaks when a generated recipe misses an active target.
 
+## Future asks
+
+- Build out an ingredient-level SVG/canvas rendering model for richer, continually improving dish previews. See `docs/visual-rendering-roadmap.md`.
+
 ## Grok photos
 
 Grok image generation is optional and server-side. The browser never receives the xAI key.
